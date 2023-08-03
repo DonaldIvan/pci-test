@@ -1,3 +1,4 @@
+import { useCallback, useRef } from "react";
 import "ag-grid-enterprise";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
@@ -19,21 +20,24 @@ interface Data {
   orbit_class: string;
 }
 const stringFilter = {
-  filterOptions: ["contains", "notContains"],
-  textFormatter: (r: string) => {
-    if (!r) return null;
-    return r.toLowerCase();
+  floatingFilter: false,
+  filterParams: {
+    filterOptions: ["contains", "notContains"],
+    textFormatter: (r: string) => {
+      if (!r) return null;
+      return r.toLowerCase();
+    },
+    debounceMs: 200,
+    maxNumConditions: 1,
   },
-  debounceMs: 200,
-  maxNumConditions: 1,
 };
 
 const numberFilter = {
   filter: "agNumberColumnFilter",
   filterParams: {
-    allowedCharPattern: "\\d\\-\\,",
+    allowedCharPattern: "\\d\\.",
     numberParser: (text: string) => {
-      return text ? parseFloat(text.replace(",", ".").replace("$", "")) : null;
+      return text ? text : null;
     },
   },
 };
@@ -45,7 +49,7 @@ const dateFilter = {
 
     let day = date.getDate().toString();
 
-    let month = date.getMonth().toString();
+    let month = (date.getMonth() + 1).toString();
     const year = date.getFullYear();
     if (Number(day) < 10) {
       day = `0${day}`;
@@ -84,7 +88,7 @@ const columnDefs: ColDef[] = [
   {
     field: "designation",
     headerName: "Designation",
-    filterParams: stringFilter,
+    ...stringFilter,
   },
   { field: "discovery_date", headerName: "Discovery Date", ...dateFilter },
   {
@@ -104,14 +108,14 @@ const columnDefs: ColDef[] = [
   {
     field: "pha",
     headerName: "Potentially Hazardous",
-    filterParams: stringFilter,
+    ...stringFilter,
     valueFormatter: yAndNFormatter,
   },
   {
     field: "orbit_class",
     headerName: "Orbit Class",
     enableRowGroup: true,
-    filterParams: stringFilter,
+    ...stringFilter,
   },
 ];
 
@@ -119,19 +123,42 @@ const defaultColDef: ColDef = {
   sortable: true,
   filter: true,
   flex: 1,
+  floatingFilter: true,
 };
 
 const NeoGrid = (): JSX.Element => {
+  const gridRef = useRef<any>(null);
+
+  const clearFilters = useCallback(() => {
+    gridRef.current.api.setFilterModel(null);
+    gridRef.current.columnApi.applyColumnState({
+      defaultState: { sort: null },
+    });
+  }, []);
   return (
-    <div className="ag-theme-alpine" style={{ height: 900, minWidth: 1920 }}>
-      <AgGridReact
-        defaultColDef={defaultColDef}
-        rowData={data as Data[]}
-        columnDefs={columnDefs}
-        enableRangeSelection={true}
-        rowGroupPanelShow={"always"}
-      />
-    </div>
+    <>
+      <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>
+        <h1>Near-Earth Object Overview</h1>
+        <button
+          style={{
+            height: "fit-content",
+            cursor: "pointer",
+          }}
+          onClick={clearFilters}
+        >
+          Clear Filters and Sorters
+        </button>
+      </div>
+      <div className="ag-theme-alpine" style={{ height: 900, minWidth: 1920 }}>
+        <AgGridReact
+          ref={gridRef}
+          defaultColDef={defaultColDef}
+          rowData={data as Data[]}
+          columnDefs={columnDefs}
+          enableRangeSelection={true}
+        />
+      </div>
+    </>
   );
 };
 
