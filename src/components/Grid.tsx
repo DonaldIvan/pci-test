@@ -24,6 +24,27 @@ const numberFilter = {
 };
 
 const dateFilter = {
+  valueFormatter: ({ value }: { value: string }) => {
+    if (!value) return "";
+    const date = new Date(value);
+
+    let day = date.getDate().toString();
+    console.log(day);
+
+    let month = date.getMonth().toString();
+    console.log(month + 1);
+
+    const year = date.getFullYear();
+    console.log(year);
+    if (Number(day) < 10) {
+      day = `0${day}`;
+    }
+
+    if (Number(month) < 10) {
+      month = `0${month}`;
+    }
+    return `${day}/${month}/${year}`;
+  },
   filter: "agDateColumnFilter",
   filterParams: {
     comparator: (filterLocalDateAtMidnight: Date, cellValue: string) => {
