@@ -63,6 +63,11 @@ const dateFilter = {
     },
   },
 };
+const yAndNFormatter = ({ value }: { value: string }): string => {
+  const upperdValue = (value ?? "").toUpperCase();
+  if (!upperdValue || !["Y", "N"].includes(upperdValue)) return "";
+  return upperdValue === "Y" ? "Yes" : "No";
+};
 
 const columnDefs: ColDef[] = [
   {
@@ -89,6 +94,7 @@ const columnDefs: ColDef[] = [
     field: "pha",
     headerName: "Potentially Hazardous",
     filterParams: stringFilter,
+    valueFormatter: yAndNFormatter,
   },
   {
     field: "orbit_class",
