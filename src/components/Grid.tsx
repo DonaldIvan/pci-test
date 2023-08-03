@@ -1,8 +1,23 @@
+import "ag-grid-enterprise";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
+
 import data from "../near-earth-asteroids.json";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
+
+interface Data {
+  designation: string;
+  discovery_date: string;
+  h_mag: string;
+  moid_au: string;
+  q_au_1: string;
+  q_au_2: string;
+  period_yr: string;
+  i_deg: string;
+  pha: string;
+  orbit_class: string;
+}
 const stringFilter = {
   filterOptions: ["contains", "notContains"],
   textFormatter: (r: string) => {
@@ -29,13 +44,9 @@ const dateFilter = {
     const date = new Date(value);
 
     let day = date.getDate().toString();
-    console.log(day);
 
     let month = date.getMonth().toString();
-    console.log(month + 1);
-
     const year = date.getFullYear();
-    console.log(year);
     if (Number(day) < 10) {
       day = `0${day}`;
     }
@@ -112,14 +123,12 @@ const defaultColDef: ColDef = {
 
 const NeoGrid = (): JSX.Element => {
   return (
-    <div
-      className="ag-theme-alpine"
-      style={{ height: 900, width: "100%", minWidth: 1920 }}
-    >
+    <div className="ag-theme-alpine" style={{ height: 900, minWidth: 1920 }}>
       <AgGridReact
         defaultColDef={defaultColDef}
-        rowData={data}
+        rowData={data as Data[]}
         columnDefs={columnDefs}
+        enableRangeSelection={true}
         rowGroupPanelShow={"always"}
       />
     </div>
