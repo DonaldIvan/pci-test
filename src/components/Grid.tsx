@@ -1,5 +1,4 @@
 import { useCallback, useRef } from "react";
-import "ag-grid-enterprise";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 
@@ -44,7 +43,6 @@ const columnDefs: ColDef[] = [
   {
     field: "orbit_class",
     headerName: "Orbit Class",
-    enableRowGroup: true,
     ...stringFilter,
   },
 ];
